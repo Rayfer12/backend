@@ -1,22 +1,22 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const connectDB = require('./config/db');  // Import connectDB from db.js
+const connectDB = require('./config/db');
 
 const userRoutes = require('./routes/userRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
+const authRoutes = require('./routes/auth');  
 
-// Load environment variables from .env
 dotenv.config();
 
-// Connect to MongoDB (this calls the function from db.js)
 connectDB();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Your app's routes
+app.use('/auth', authRoutes);  
+
 app.use('/api/users', userRoutes);
 app.use('/api/tickets', ticketRoutes);
 
