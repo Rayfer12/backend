@@ -4,18 +4,16 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const router = express.Router();
 
-// POST /auth/register (optional) - create new user with hashed password
+// Register route
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'Email already exists' });
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user
     const user = new User({ username, email, password: hashedPassword });
     await user.save();
 
@@ -25,7 +23,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /auth/login - authenticate user and return JWT
+// Login route
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -37,7 +35,10 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.json({ token, user: { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin } });
+    res.json({
+      token,
+      user: { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin }
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
